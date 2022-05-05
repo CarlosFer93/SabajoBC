@@ -7,21 +7,25 @@ import "hardhat/console.sol";
 
 contract YourContract {
 
-  event SetPurpose(address sender, string purpose);
+  event SetPurpose(address sender, string purpose, string name);
 
   string public purpose = "Building Unstoppable Apps!!!";
+  string public name = "Fulanitop";
+
 
   constructor() payable {
     // what should we do on deploy?
   }
 
-  function setPurpose(string memory newPurpose) public {
+  function setPurpose(string memory newPurpose, string memory newName) public {
       purpose = newPurpose;
-      console.log(msg.sender,"set purpose to",purpose);
-      emit SetPurpose(msg.sender, purpose);
+      name = newName;
+      console.log(msg.sender,"set purpose to",purpose, name);
+      emit SetPurpose(msg.sender, purpose, name);
   }
 
   // to support receiving ETH by default
-  receive() external payable {}
-  fallback() external payable {}
+  // Comment whe using with a wallet like metamask
+  // receive() external payable {}
+  // fallback() external payable {}
 }
