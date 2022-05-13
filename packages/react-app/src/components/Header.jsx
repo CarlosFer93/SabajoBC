@@ -5,7 +5,7 @@ import React from "react";
 
 export default function Header({link, title, subTitle}) {
   return (
-    <a href={link} target="_blank" rel="noopener noreferrer">
+    <a href={link} rel="noopener noreferrer">
       <PageHeader
         title={title}
         subTitle={subTitle}
@@ -17,7 +17,7 @@ export default function Header({link, title, subTitle}) {
 
 
 Header.defaultProps = {
-  link: "https://github.com/austintgriffith/scaffold-eth",
-  title: "🏗 scaffold-eth",
-  subTitle: "forkable Ethereum dev stack focused on fast product iteration",
+  link: "/",
+  title: "🩺 SABAJO",
+  subTitle: "la vie est belle",
 }
