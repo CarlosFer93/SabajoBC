@@ -20,6 +20,28 @@ export default function ExampleUI({
   const [newPurpose, setNewPurpose] = useState("loading...");
   const [newName, setNewName] = useState("loading fulanito...");
 
+  const handleRegisterOccupational = async () => {
+    /* look how you call setPurpose on your contract: */
+    /* notice how you pass a call back for tx updates too */
+    const result = tx(writeContracts.HealthOcupational.OHDirection(), update => {
+      console.log("📡 Transaction Update:", update);
+      if (update && (update.status === "confirmed" || update.status === 1)) {
+        console.log(" 🍾 Transaction " + update.hash + " finished!");
+        console.log(
+          " ⛽️ " +
+            update.gasUsed +
+            "/" +
+            (update.gasLimit || update.gas) +
+            " @ " +
+            parseFloat(update.gasPrice) / 1000000000 +
+            " gwei",
+        );
+      }
+    });
+    console.log("awaiting metamask/web3 confirm result...", result);
+    console.log(await result);
+  }
+
   return (
     <div>
       {/*
@@ -27,6 +49,7 @@ export default function ExampleUI({
       */}
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
         <h2>Salud Ocupacional</h2>
+        <Button onClick={handleRegisterOccupational}>Registrarse blockchain</Button>
         <h4>purpose: {purpose}</h4>
         <h4>name: {name}</h4>
         <Divider />

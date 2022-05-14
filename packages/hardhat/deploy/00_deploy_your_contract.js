@@ -76,4 +76,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
   //   console.error(error);
   // }
 };
-module.exports.tags = ["YourContract"];
+module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
+  const { deploy } = deployments;
+  const { deployer } = await getNamedAccounts();
+
+  await deploy("HealthOcupational", {
+    from: deployer,
+    log: true,
+    waitConfirmations: 5,
+  });
+};
+module.exports.tags = ["YourContract", "HealthOcupational", "WorkerSC"];
