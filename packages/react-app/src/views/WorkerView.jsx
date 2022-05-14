@@ -5,7 +5,7 @@ import { SyncOutlined } from "@ant-design/icons";
 
 import { Address, Balance, Events } from "../components";
 
-export default function ExampleUI({
+export default function WorkerView({
   purpose,
   name,
   address,
@@ -20,10 +20,10 @@ export default function ExampleUI({
   const [newPurpose, setNewPurpose] = useState("loading...");
   const [newName, setNewName] = useState("loading fulanito...");
 
-  const handleRegisterOccupational = async () => {
+  const handleRequestAccessWorker = async () => {
     /* look how you call setPurpose on your contract: */
     /* notice how you pass a call back for tx updates too */
-    const result = tx(writeContracts.HealthOcupational.OHDirection(), update => {
+    const result = tx(writeContracts.HealthOcupational.RequestAccess(), update => {
       console.log("📡 Transaction Update:", update);
       if (update && (update.status === "confirmed" || update.status === 1)) {
         console.log(" 🍾 Transaction " + update.hash + " finished!");
@@ -48,8 +48,8 @@ export default function ExampleUI({
         ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
       */}
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
-        <h2>Salud Ocupacional</h2>
-        <Button onClick={handleRegisterOccupational}>Registrarse blockchain</Button>
+        <h2>Worker</h2>
+        <Button onClick={handleRequestAccessWorker}>Request Access</Button>
         <h4>purpose: {purpose}</h4>
         <h4>name: {name}</h4>
         <Divider />
@@ -130,8 +130,8 @@ export default function ExampleUI({
       */}
       <Events
         contracts={readContracts}
-        contractName="YourContract"
-        eventName="SetPurpose"
+        contractName="HealthOcupational"
+        eventName="AccessRequests"
         localProvider={localProvider}
         mainnetProvider={mainnetProvider}
         startBlock={1}

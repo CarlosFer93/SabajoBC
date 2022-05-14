@@ -86,4 +86,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     waitConfirmations: 5,
   });
 };
+// module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
+//   const { deploy } = deployments;
+//   const { deployer } = await getNamedAccounts();
+
+//   await deploy("WorkerSC", {
+//     from: deployer,
+//     log: true,
+//     waitConfirmations: 5,
+//   });
+// };
 module.exports.tags = ["YourContract", "HealthOcupational", "WorkerSC"];

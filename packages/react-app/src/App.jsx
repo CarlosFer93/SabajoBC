@@ -29,7 +29,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, ExampleUI, Hints, Subgraph } from "./views";
+import { Home, WorkerView, OccupationalView, Hints, Subgraph } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -296,7 +296,7 @@ function App(props) {
           </div>
         </Route>
         <Route exact path="/occupational">
-          <ExampleUI
+          <OccupationalView
             address={address}
             userSigner={userSigner}
             mainnetProvider={mainnetProvider}
@@ -311,7 +311,19 @@ function App(props) {
           />
         </Route>
         <Route path="/worker">
-          <div>Bye bye</div>
+          <WorkerView
+            address={address}
+            userSigner={userSigner}
+            mainnetProvider={mainnetProvider}
+            localProvider={localProvider}
+            yourLocalBalance={yourLocalBalance}
+            price={price}
+            tx={tx}
+            writeContracts={writeContracts}
+            readContracts={readContracts}
+            purpose={purpose}
+            name={name}
+          />
         </Route>
       </Switch>
 

@@ -14,6 +14,7 @@ contract HealthOcupational {
     
     function OHDirection () public {
         HealthOcupationalDirection = msg.sender;
+        emit NewOHDirection (HealthOcupationalDirection);
     }
 
     // Mapping para relacionar los empleados (direccion/address) con la validez del sistema de gestion
@@ -32,6 +33,7 @@ contract HealthOcupational {
     event AccessRequests (address);
     event NewWorkerValidated (address);
     event NewSContract (address, address);
+    event NewOHDirection (address);
     
     
     // Modificador que permita unicamente la ejecucion de funciones por el profesional de salud ocupacional 
