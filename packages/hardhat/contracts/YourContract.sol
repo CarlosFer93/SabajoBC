@@ -27,13 +27,14 @@ contract HealthOcupational {
     address [] public WorkersContractDirections;
     
     // Array de las direcciones que soliciten acceso 
-    address [] requests;
+    address [] public requests;
     
     // Eventos a emitir 
     event AccessRequests (address);
     event NewWorkerValidated (address);
     event NewSContract (address, address);
     event NewOHDirection (address);
+    event RevRequest (address[]);
     
     
     // Modificador que permita unicamente la ejecucion de funciones por el profesional de salud ocupacional 
@@ -52,6 +53,7 @@ contract HealthOcupational {
     
     // Funcion que visualiza las direcciones que han solicitado este acceso 
     function ShowRequests() public view OnlyHO(msg.sender) returns (address [] memory){
+        //emit RevRequest (requests);
         return requests;
     }
     

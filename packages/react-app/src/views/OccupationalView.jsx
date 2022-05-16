@@ -60,9 +60,10 @@ export default function OccupationalView({
       }
     });
     console.log("awaiting metamask/web3 confirm result...", result);
-    console.log(await result);
-    // const logresult = await result;
-    // setRequestsList(logresult);
+    // console.log(await result);
+    const logresult = await result;
+    alert(JSON.stringify(logresult));
+    setRequestsList(logresult);
   };
 
   const handleWorkerAccessClick = async (address) => {
@@ -85,6 +86,11 @@ export default function OccupationalView({
     // console.log(await result);
     const logresult = await result;
     console.log(logresult);
+  }
+
+  const handleOnEvent = (event) => {
+    alert(JSON.stringify(event));
+    setRequestsList(event);
   }
 
   return (
@@ -185,14 +191,15 @@ export default function OccupationalView({
         mainnetProvider={mainnetProvider}
         startBlock={1}
       />
-
-      {/* <Events
+{/* 
+      <Events
         contracts={readContracts}
         contractName="HealthOcupational"
-        eventName="NewWorkerValidated"
+        eventName="RevRequest"
         localProvider={localProvider}
         mainnetProvider={mainnetProvider}
         startBlock={1}
+        oeventLog
       /> */}
 
       {/* <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
