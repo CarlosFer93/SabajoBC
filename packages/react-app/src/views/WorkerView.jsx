@@ -69,13 +69,44 @@ export default function WorkerView({
       */}
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
         <h2>Worker</h2>
-        <Button onClick={handleRequestAccessWorker}>Request Access</Button>
-        <Button onClick={handleCreateWorkerSC}>Create Worker Contract </Button>
-        <h4>purpose: {purpose}</h4>
-        <h4>name: {name}</h4>
+        <Button onClick={handleRequestAccessWorker}>Solicitar Acceso a la Empresa</Button>
+        <br />
+        <Button onClick={handleCreateWorkerSC}>Crear Contrato del Trabajador</Button>
+        {/* string memory newPrimaryActivity, string memory newSecundaryActivity, 
+        string memory newMissingActivity, bool newProtection, bool newCapacitation, 
+        bool newFMWelfare, bool newPsySub, bool newCorporalPain, bool newSleep */}
+        {/* <h4>purpose: {purpose}</h4>
+        <h4>name: {name}</h4> */}
         <Divider />
-        <div style={{ margin: 8 }}>
-          <Input
+        <div style={{ margin: 8, textAlign: "left" }}>
+          <h4>
+            Actividad Primaria <Input placeholder="Escribe tu actividad primaria" />
+          </h4>
+          <h4>
+            Actividad Secundaria <Input placeholder="Escribe tu actividad secundaria" />
+          </h4>
+          <h4>
+            Actividad Faltante <Input placeholder="Escribe tu actividad faltante" />
+          </h4>
+          <h4>
+             Protección <Switch />
+          </h4>
+          <h4>
+             Capacitación <Switch />
+          </h4>
+          <h4>
+             Bienestar Físico y Mental <Switch />
+          </h4>
+          <h4>
+             Sustancias Psicoactivas <Switch />
+          </h4>
+          <h4>
+             Dolor Corporal <Switch />
+          </h4>
+          <h4>
+             Insomnio <Switch />
+          </h4>
+          {/* <Input
             placeholder="Purpose"
             onChange={e => {
               setNewPurpose(e.target.value);
@@ -85,8 +116,9 @@ export default function WorkerView({
             placeholder="Name"
             onChange={e => {
               setNewName(e.target.value);
-            }}
-          />
+            }} 
+          />*/}
+          {/* TODO: Call a function to publish the worker sc contract with this data */}
           <Button
             style={{ marginTop: 8 }}
             onClick={async () => {
@@ -111,7 +143,7 @@ export default function WorkerView({
               console.log(await result);
             }}
           >
-            Set Purpose + Name!
+            Enviar datos
           </Button>
         </div>
         <Divider />
