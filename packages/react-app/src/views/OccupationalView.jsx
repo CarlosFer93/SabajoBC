@@ -1,7 +1,6 @@
-import { Button, Card, DatePicker, Divider, Input, Progress, Slider, Spin, Switch } from "antd";
+import { Button, Divider } from "antd";
 import React, { useState } from "react";
 import { utils } from "ethers";
-import { SyncOutlined } from "@ant-design/icons";
 
 import { Address, Balance, Events } from "../components";
 
@@ -17,26 +16,13 @@ export default function OccupationalView({
   readContracts,
   writeContracts,
 }) {
-  const [newPurpose, setNewPurpose] = useState("loading...");
-  const [newName, setNewName] = useState("loading fulanito...");
   const [requestsList, setRequestsList] = useState([]);
 
   const handleRegisterOccupational = async () => {
-    /* look how you call setPurpose on your contract: */
-    /* notice how you pass a call back for tx updates too */
-    const result = tx(writeContracts.HealthOcupational.OHDirection(), update => {
+    const result = tx(writeContracts.HealthOcupational.CrearSaludOcupacional(), update => {
       console.log("📡 Transaction Update:", update);
       if (update && (update.status === "confirmed" || update.status === 1)) {
-        console.log(" 🍾 Transaction " + update.hash + " finished!");
-        console.log(
-          " ⛽️ " +
-            update.gasUsed +
-            "/" +
-            (update.gasLimit || update.gas) +
-            " @ " +
-            parseFloat(update.gasPrice) / 1000000000 +
-            " gwei",
-        );
+        console.log(" Success ");
       }
     });
     console.log("awaiting metamask/web3 confirm result...", result);
@@ -44,53 +30,27 @@ export default function OccupationalView({
   }
 
   const handleShowRequests = async () => {
-    const result = tx(writeContracts.HealthOcupational.ShowRequests(), update => {
+    const result = tx(writeContracts.HealthOcupational.ObservarSolicitudes(), update => {
       console.log("📡 Transaction Update:", update);
       if (update && (update.status === "confirmed" || update.status === 1)) {
-        console.log(" 🍾 Transaction " + update.hash + " finished!");
-        console.log(
-          " ⛽️ " +
-            update.gasUsed +
-            "/" +
-            (update.gasLimit || update.gas) +
-            " @ " +
-            parseFloat(update.gasPrice) / 1000000000 +
-            " gwei",
-        );
+        console.log(" Success ");
       }
     });
     console.log("awaiting metamask/web3 confirm result...", result);
-    // console.log(await result);
     const logresult = await result;
-    alert(JSON.stringify(logresult));
     setRequestsList(logresult);
   };
 
   const handleWorkerAccessClick = async (address) => {
-    const result = tx(writeContracts.HealthOcupational.WorkerAccess(address), update => {
+    const result = tx(writeContracts.HealthOcupational.ConcederAccesoTrabajador(address), update => {
       console.log("📡 Transaction Update:", update);
       if (update && (update.status === "confirmed" || update.status === 1)) {
-        console.log(" 🍾 Transaction " + update.hash + " finished!");
-        console.log(
-          " ⛽️ " +
-            update.gasUsed +
-            "/" +
-            (update.gasLimit || update.gas) +
-            " @ " +
-            parseFloat(update.gasPrice) / 1000000000 +
-            " gwei",
-        );
+        console.log(" Success ");
       }
     });
     console.log("awaiting metamask/web3 confirm result...", result);
-    // console.log(await result);
     const logresult = await result;
     console.log(logresult);
-  }
-
-  const handleOnEvent = (event) => {
-    alert(JSON.stringify(event));
-    setRequestsList(event);
   }
 
   return (
@@ -105,71 +65,16 @@ export default function OccupationalView({
         <div>
           {requestsList && requestsList?.length > 0 && (requestsList.map((request)=><div>{request} <Button onClick={()=>handleWorkerAccessClick(request)}>Accept</Button></div>))}
         </div>
-        <h4>purpose: {purpose}</h4>
-        <h4>name: {name}</h4>
-        <Divider />
-        <div style={{ margin: 8 }}>
-          <Input
-            placeholder="Purpose"
-            onChange={e => {
-              setNewPurpose(e.target.value);
-            }}
-          />
-          <Input
-            placeholder="Name"
-            onChange={e => {
-              setNewName(e.target.value);
-            }}
-          />
-          <Button
-            style={{ marginTop: 8 }}
-            onClick={async () => {
-              /* look how you call setPurpose on your contract: */
-              /* notice how you pass a call back for tx updates too */
-              const result = tx(writeContracts.YourContract.setPurpose(newPurpose, newName), update => {
-                console.log("📡 Transaction Update:", update);
-                if (update && (update.status === "confirmed" || update.status === 1)) {
-                  console.log(" 🍾 Transaction " + update.hash + " finished!");
-                  console.log(
-                    " ⛽️ " +
-                      update.gasUsed +
-                      "/" +
-                      (update.gasLimit || update.gas) +
-                      " @ " +
-                      parseFloat(update.gasPrice) / 1000000000 +
-                      " gwei",
-                  );
-                }
-              });
-              console.log("awaiting metamask/web3 confirm result...", result);
-              console.log(await result);
-            }}
-          >
-            Set Purpose + Name!
-          </Button>
-        </div>
+
         <Divider />
         Your Address:
         <Address address={address} ensProvider={mainnetProvider} fontSize={16} />
-        {/* <Divider /> */}
-        {/* ENS Address Example:
-        <Address
-          address="0x34aA3F359A9D614239015126635CE7732c18fDF3"
-          ensProvider={mainnetProvider}
-          fontSize={16}
-        /> */}
+
         <Divider />
         {/* use utils.formatEther to display a BigNumber: */}
         <h2>Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}</h2>
         <div>OR</div>
         <Balance address={address} provider={localProvider} price={price} />
-        {/* <Divider />
-        <div>🐳 Example Whale Balance:</div>
-        <Balance balance={utils.parseEther("1000")} provider={localProvider} price={price} /> */}
-        <Divider />
-        {/* use utils.formatEther to display a BigNumber: */}
-        {/* <h2>Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}</h2>
-        <Divider /> */}
         Your Contract Address:
         <Address
           address={readContracts && readContracts.YourContract ? readContracts.YourContract.address : null}
@@ -191,70 +96,6 @@ export default function OccupationalView({
         mainnetProvider={mainnetProvider}
         startBlock={1}
       />
-{/* 
-      <Events
-        contracts={readContracts}
-        contractName="HealthOcupational"
-        eventName="RevRequest"
-        localProvider={localProvider}
-        mainnetProvider={mainnetProvider}
-        startBlock={1}
-        oeventLog
-      /> */}
-
-      {/* <div style={{ width: 600, margin: "auto", marginTop: 32, paddingBottom: 256 }}>
-        <Card>
-          Check out all the{" "}
-          <a
-            href="https://github.com/austintgriffith/scaffold-eth/tree/master/packages/react-app/src/components"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            📦 components
-          </a>
-        </Card>
-
-        <Card style={{ marginTop: 32 }}>
-          <div>
-            There are tons of generic components included from{" "}
-            <a href="https://ant.design/components/overview/" target="_blank" rel="noopener noreferrer">
-              🐜 ant.design
-            </a>{" "}
-            too!
-          </div>
-
-          <div style={{ marginTop: 8 }}>
-            <Button type="primary">Buttons</Button>
-          </div>
-
-          <div style={{ marginTop: 8 }}>
-            <SyncOutlined spin /> Icons
-          </div>
-
-          <div style={{ marginTop: 8 }}>
-            Date Pickers?
-            <div style={{ marginTop: 2 }}>
-              <DatePicker onChange={() => {}} />
-            </div>
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Slider range defaultValue={[20, 50]} onChange={() => {}} />
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Switch defaultChecked onChange={() => {}} />
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Progress percent={50} status="active" />
-          </div>
-
-          <div style={{ marginTop: 32 }}>
-            <Spin />
-          </div>
-        </Card>
-      </div> */}
     </div>
   );
 }
