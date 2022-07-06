@@ -1,8 +1,12 @@
 import { Button, Divider } from "antd";
 import React, { useState } from "react";
 import { utils } from "ethers";
+import { collection } from 'firebase/firestore';
+import { useFirestore, useFirestoreCollectionData } from 'reactfire';
+
 
 import { Address, Balance, Events } from "../components";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis } from "recharts";
 
 export default function OccupationalView({
   purpose,
@@ -17,6 +21,8 @@ export default function OccupationalView({
   writeContracts,
 }) {
   const [requestsList, setRequestsList] = useState([]);
+  const eventsRef = collection(useFirestore(), "events")
+  const { data, status } = useFirestoreCollectionData(eventsRef);
 
   const handleRegisterOccupational = async () => {
     const result = tx(writeContracts.HealthOcupational.CrearSaludOcupacional(), update => {
@@ -53,6 +59,10 @@ export default function OccupationalView({
     console.log(logresult);
   }
 
+  if (status === 'loading') {
+    return <p>Cargando...</p>;
+  }
+
   return (
     <div>
       {/*
@@ -63,7 +73,7 @@ export default function OccupationalView({
         <Button onClick={handleRegisterOccupational}>Registrarse blockchain</Button>
         <Button onClick={handleShowRequests}>Mostrar Requests de workers</Button>
         <div>
-          {requestsList && requestsList?.length > 0 && (requestsList.map((request)=><div>{request} <Button onClick={()=>handleWorkerAccessClick(request)}>Accept</Button></div>))}
+          {requestsList && requestsList?.length > 0 && (requestsList[0].map((request, idx) => <div>{`${requestsList[1][idx]}_${requestsList[2][idx]}`} <Button onClick={() => handleWorkerAccessClick(request)}>Accept</Button></div>))}
         </div>
 
         <Divider />
@@ -82,6 +92,30 @@ export default function OccupationalView({
           fontSize={16}
         />
         <Divider />
+        <ul>
+          {
+            data?.map(
+              (event) => <li key={event.id}>{event.id}</li>
+            )
+          }
+        </ul>
+        {/* Counts the number of formats using chaleco */}
+        <BarChart
+          width={300}
+          height={400}
+          data={[{
+            name: "Usa chaleco",
+            value: data?.filter(
+              ({ timestamp, form }) => form?.proteccion?.chaleco
+            ).length
+          }]}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <CartesianGrid stroke="#f5f5f5" />
+          <Bar type="monotone" dataKey="value" yAxisId={0} />
+        </BarChart>
       </div>
 
       {/*

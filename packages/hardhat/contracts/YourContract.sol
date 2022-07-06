@@ -24,19 +24,23 @@ contract HealthOcupational {
     
     // Relacionar una direccion de un empleado con su contrato diario
     mapping (address => address) public ContratoTrabajador;
+
     
     // Array de direcciones que almacene los contratos de los empleados validados 
     address [] public DireccionesContratosTrabajadores;
     
     // Array de las direcciones que soliciten acceso 
     address [] public SolicitudesTrabajadores;
-    
+    //Array de codigos y nombres de empleados
+    string [] public Nombre;
+    //Array de codigos y nombres de empleados
+    string [] public Codigo;
+
     // Eventos a emitir 
-    event SolicitudAccesoTrabajador (address);
+    event SolicitudAccesoTrabajador (address, string, string);
     event TrabajadorValidado (address);
     event NuevoContratoDiarioTrabajador (address, address);
     event ValidarSaludOcupacional (address);
-    // event SolicitudesTrabajadores (address[]);
     
     
     // Modificador que permita unicamente la ejecucion de funciones por el profesional de salud ocupacional 
@@ -46,17 +50,21 @@ contract HealthOcupational {
     }
     
     // Funcion para solicitar acceso al sistema
-    function PedirAcceso() public {
+    function PedirAcceso(string memory _Nombre, string memory _Codigo) public {
         // Almacenar la direccion en el array de solicitudes 
         SolicitudesTrabajadores.push(msg.sender);
-        // Emision del evento 
-        emit SolicitudAccesoTrabajador (msg.sender);
+        // Almacenar el nombre del trabajador
+        Nombre.push(_Nombre);
+        // Almacenar el codigo del trabajador
+        Codigo.push(_Codigo);
+        // Emision de los evento
+        emit SolicitudAccesoTrabajador (msg.sender, _Nombre, _Codigo);
     }
     
     // Funcion que visualiza las direcciones que han solicitado este acceso 
-    function ObservarSolicitudes() public view OnlyHO(msg.sender) returns (address [] memory){
+    function ObservarSolicitudes() public view OnlyHO(msg.sender) returns (address [] memory, string [] memory, string [] memory){
         //emit RevRequest (SolicitudesTrabajadores);
-        return SolicitudesTrabajadores;
+        return (SolicitudesTrabajadores, Nombre, Codigo);  
     }
     
     // Funcion para validar nuevos empleados que puedan autogestionarse -> Unicamente prof. en S. O.

@@ -67,7 +67,12 @@
       "**/hardhat-ts/**"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "firebase": "^9.8.4",
+    "reactfire": "^4.2.1",
+    "recharts": "^2.1.12",
+    "tslib": "^2.4.0"
+  },
   "devDependencies": {
     "husky": "^7.0.2"
   }

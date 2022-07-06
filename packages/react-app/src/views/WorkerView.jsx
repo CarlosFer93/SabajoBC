@@ -2,6 +2,8 @@ import { Button, Collapse, Checkbox, DatePicker, Divider, Input, Progress, Slide
 import React, { useState } from "react";
 import { utils } from "ethers";
 import { SyncOutlined } from "@ant-design/icons";
+import { collection, addDoc } from 'firebase/firestore';
+import { useFirestore, useFirestoreCollection, useFirestoreCollectionData } from 'reactfire';
 
 import { Address, Balance, Events } from "../components";
 
@@ -17,10 +19,11 @@ export default function WorkerView({
   readContracts,
   writeContracts,
 }) {
-  const [newPurpose, setNewPurpose] = useState("loading...");
-  const [newName, setNewName] = useState("loading fulanito...");
+  const eventsRef = collection(useFirestore(), "events")
 
   const [formatState, setFormatState] = useState({
+    nombre: "",
+    codigo: "",
     actividades: {
       actividadPrimaria: "",
       actividadSecundaria: "",
@@ -58,7 +61,7 @@ export default function WorkerView({
   })
 
   const handleRequestAccessWorker = async () => {
-    const result = tx(writeContracts.HealthOcupational.PedirAcceso(), update => {
+    const result = tx(writeContracts.HealthOcupational.PedirAcceso(formatState.nombre, formatState.codigo), update => {
       console.log("📡 Transaction Update:", update);
       if (update && (update.status === "confirmed" || update.status === 1)) {
         console.log(" Success ");
@@ -80,12 +83,17 @@ export default function WorkerView({
   };
 
   const handlePostWorkerData = async () => {
-    const result = tx(writeContracts.WorkerSC.DatosEntradaTrabajo(
-      JSON.stringify((formatState))
+    const result = tx(writeContracts.ContratoEmpleado.DatosEntradaTrabajo(
+      "JSON.stringify(formatState).toString()"
     ), update => {
       console.log("📡 Transaction Update:", update);
       if (update && (update.status === "confirmed" || update.status === 1)) {
         console.log(" Success ");
+        // Firebase upload
+        addDoc(eventsRef, {
+          timestamp: new Date().getTime(),
+          form: formatState
+        })
       }
     });
     console.log("awaiting metamask/web3 confirm result...", result);
@@ -107,6 +115,15 @@ export default function WorkerView({
       */}
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
         <h2>Worker</h2>
+        <h4>
+          Nombre <Input onChange={(e) => setFormatState({ ...formatState, nombre: e.target.value })} placeholder="Escribe tu nombre" />
+        </h4>
+        <h4>
+          Codigo <Input onChange={(e) => setFormatState({ ...formatState, codigo: e.target.value })} placeholder="Escribe tu codigo" />
+        </h4>
+
+        <Divider />
+
         <Button onClick={handleRequestAccessWorker}>Solicitar Acceso a la Empresa</Button>
         <br />
         <Button onClick={handleCreateWorkerSC}>Crear Contrato del Trabajador</Button>
@@ -114,6 +131,7 @@ export default function WorkerView({
         <Divider />
 
         <div style={{ margin: 8, textAlign: "left" }}>
+
           {/* ACTIVIDADES */}
           <Collapse defaultActiveKey={['1']}>
             <Collapse.Panel header={
@@ -141,13 +159,13 @@ export default function WorkerView({
                 <Checkbox
                   checked={allTrue(Object.values(formatState.proteccion))}
                   indeterminate={atleastOneTrue(Object.values(formatState.proteccion)) && !allTrue(Object.values(formatState.proteccion))}
-                  // onChange={() => {
-                  //   let _proteccion = formatState.proteccion;
-                  //   Object.keys(formatState.proteccion).forEach(key => {
-                  //     _proteccion[key] = atleastOneTrue(Object.values(formatState.proteccion)) && !allTrue(Object.values(formatState.proteccion)) ? true : false
-                  //   })
-                  //   setFormatState({ ...formatState, proteccion: _proteccion })
-                  // }}
+                // onChange={() => {
+                //   let _proteccion = formatState.proteccion;
+                //   Object.keys(formatState.proteccion).forEach(key => {
+                //     _proteccion[key] = atleastOneTrue(Object.values(formatState.proteccion)) && !allTrue(Object.values(formatState.proteccion)) ? true : false
+                //   })
+                //   setFormatState({ ...formatState, proteccion: _proteccion })
+                // }}
                 ></Checkbox>
               </div>
             } key="1">
@@ -181,7 +199,7 @@ export default function WorkerView({
               </div>
             </Collapse.Panel>
           </Collapse>
-          
+
           {/* CAPACITACION */}
           <Collapse defaultActiveKey={['1']}>
             <Collapse.Panel header={
@@ -290,7 +308,7 @@ export default function WorkerView({
         <h2>Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}</h2>
         <div>OR</div>
         <Balance address={address} provider={localProvider} price={price} />
-        
+
         <Divider />
 
         Your Contract Address:

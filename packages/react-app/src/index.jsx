@@ -2,8 +2,12 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
 import React from "react";
 import { ThemeSwitcherProvider } from "react-css-theme-switcher";
 import { BrowserRouter } from "react-router-dom";
+import { getFirestore } from 'firebase/firestore';
+import { FirebaseAppProvider, FirestoreProvider, useFirebaseApp } from 'reactfire';
+import firebaseConfig from "./api/firebaseConfig";
 import ReactDOM from "react-dom";
 import App from "./App";
+import 'firebase/firestore';
 import "./index.css";
 
 const themes = {
@@ -20,13 +24,24 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+const AppWrapper = () => {
+  const firestoreInstance = getFirestore(useFirebaseApp());
+  return (
+    <FirestoreProvider sdk={firestoreInstance}>
+      <ApolloProvider client={client}>
+      <ThemeSwitcherProvider themeMap={themes} defaultTheme={prevTheme || "light"}>
+        <BrowserRouter>
+          <App subgraphUri={subgraphUri} />
+        </BrowserRouter>
+      </ThemeSwitcherProvider>
+    </ApolloProvider>
+    </FirestoreProvider>
+  );
+}
+
 ReactDOM.render(
-  <ApolloProvider client={client}>
-    <ThemeSwitcherProvider themeMap={themes} defaultTheme={prevTheme || "light"}>
-      <BrowserRouter>
-        <App subgraphUri={subgraphUri} />
-      </BrowserRouter>
-    </ThemeSwitcherProvider>
-  </ApolloProvider>,
+  <FirebaseAppProvider firebaseConfig={ firebaseConfig }>
+    <AppWrapper />
+  </FirebaseAppProvider>,
   document.getElementById("root"),
 );
