@@ -257,36 +257,10 @@ function App(props) {
         logoutOfWeb3Modal={logoutOfWeb3Modal}
         USE_NETWORK_SELECTOR={USE_NETWORK_SELECTOR}
       />
-      {/* <Menu style={{ textAlign: "center", marginTop: 40 }} selectedKeys={[location.pathname]} mode="horizontal">
-        <Menu.Item key="/">
-          <Link to="/">Formato</Link>
-        </Menu.Item>
-      <Menu.Item key="/debug">
-          <Link to="/debug">Debug Contracts</Link>
-        </Menu.Item> */}
-      {/* <Menu.Item key="/hints">
-          <Link to="/hints">Hints</Link>
-        </Menu.Item> */}
-      {/* <Menu.Item key="/exampleui">
-          <Link to="/exampleui">ExampleUI</Link>
-        </Menu.Item> */}
-      {/* <Menu.Item key="/mainnetdai">
-          <Link to="/mainnetdai">Mainnet DAI</Link>
-        </Menu.Item> */}
-      {/* <Menu.Item key="/subgraph">
-          <Link to="/subgraph">Subgraph</Link>
-        </Menu.Item> */}
-      {/* </Menu> */}
-      
 
       <Switch>
-        {/* <Route exact path="/"> */}
-        {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-        {/* <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
-        </Route> */}
-
         <Route exact path="/">
-        <div>
+          <div>
             <Button>
               <Link to="/occupational">Occupational</Link>
             </Button>
@@ -354,37 +328,10 @@ function App(props) {
             blockExplorer={blockExplorer}
           />
         </div>
-        {/* {yourLocalBalance.lte(ethers.BigNumber.from("0")) && (
-          <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
-        )} */}
       </div>
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-        {/* <Row align="middle" gutter={[4, 4]}>
-          <Col span={8}>
-            <Ramp price={price} address={address} networks={NETWORKS} />
-          </Col>
-
-          <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-            <GasGauge gasPrice={gasPrice} />
-          </Col>
-          <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-            <Button
-              onClick={() => {
-                window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-              }}
-              size="large"
-              shape="round"
-            >
-              <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                💬
-              </span>
-              Support
-            </Button>
-          </Col>
-        </Row> */}
-
         <Row align="middle" gutter={[4, 4]}>
           <Col span={24}>
             {
