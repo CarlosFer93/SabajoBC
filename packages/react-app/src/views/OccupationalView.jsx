@@ -85,12 +85,12 @@ export default function OccupationalView({
         <h2>Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}</h2>
         <div>OR</div>
         <Balance address={address} provider={localProvider} price={price} />
-        {/* Your Contract Address:
+        Your Contract Address:
         <Address
           address={readContracts && readContracts.YourContract ? readContracts.YourContract.address : null}
           ensProvider={mainnetProvider}
           fontSize={16}
-        /> */}
+        />
         <Divider />
         <ul>
           {
