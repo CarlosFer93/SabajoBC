@@ -95,17 +95,20 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
           });
           // on most networks BlockNative will update a transaction handler,
           // but locally we will set an interval to listen...
-          // if (callback) {
-          //   const txResult = await tx;
-          //   const listeningInterval = setInterval(async () => {
-          //     console.log("CHECK IN ON THE TX", txResult, provider);
-          //     const currentTransactionReceipt = await provider.getTransactionReceipt(txResult.hash);
-          //     if (currentTransactionReceipt && currentTransactionReceipt.confirmations) {
-          //       callback({ ...txResult, ...currentTransactionReceipt });
-          //       clearInterval(listeningInterval);
-          //     }
-          //   }, 500);
-          // }
+          if (callback) {
+            const txResult = await tx;
+            // const listeningInterval = setInterval(async () => {
+            //   console.log("CHECK IN ON THE TX", txResult, provider);
+            //   const currentTransactionReceipt = await provider.getTransactionReceipt(txResult.hash);
+            //   if (currentTransactionReceipt && currentTransactionReceipt.confirmations) {
+            //     callback({ ...txResult, ...currentTransactionReceipt });
+            //     clearInterval(listeningInterval);
+            //   }
+            // }, 500);
+            // const currentTransactionReceipt = await provider.getTransactionReceipt(txResult.hash);
+            callback({ ...txResult });
+
+          }
         }
 
         if (typeof result.wait === "function") {

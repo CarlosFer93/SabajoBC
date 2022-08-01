@@ -101,14 +101,16 @@ export default function OccupationalView({
         </ul>
         {/* Counts the number of formats using chaleco */}
         <BarChart
-          width={300}
+          width={500}
           height={400}
-          data={[{
-            name: "Usa chaleco",
+          data={[
+          ...Object.keys(data[0]?.form.proteccion || {}).map(item => ({
+            name: `${item}`,
             value: data?.filter(
-              ({ timestamp, form }) => form?.proteccion?.chaleco
+              ({ timestamp, form }) => form?.proteccion[item]
             ).length
-          }]}
+          }))
+        ]}
           margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
         >
           <XAxis dataKey="name" />

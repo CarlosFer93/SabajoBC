@@ -9,11 +9,6 @@ contract HealthOcupational {
     // Direccion del profesional en salud ocupacional -> Owner / Dueño del contrato 
     address public DireccionSaludOcupacional;
     
-    // Constructor del contrato 
-    // constructor () public {
-    //     DireccionSaludOcupacional = msg.sender;
-    // }
-    
     function CrearSaludOcupacional () public {
         DireccionSaludOcupacional = msg.sender;
         emit ValidarSaludOcupacional (DireccionSaludOcupacional);
@@ -21,13 +16,6 @@ contract HealthOcupational {
 
     // Mapping para relacionar los empleados (direccion/address) con la validez del sistema de gestion
     mapping (address => bool) public ValidacionTrabajador;
-    
-    // Relacionar una direccion de un empleado con su contrato diario
-    mapping (address => address) public ContratoTrabajador;
-
-    
-    // Array de direcciones que almacene los contratos de los empleados validados 
-    address [] public DireccionesContratosTrabajadores;
     
     // Array de las direcciones que soliciten acceso 
     address [] public SolicitudesTrabajadores;
@@ -42,13 +30,12 @@ contract HealthOcupational {
     event NuevoContratoDiarioTrabajador (address, address);
     event ValidarSaludOcupacional (address);
     
-    
     // Modificador que permita unicamente la ejecucion de funciones por el profesional de salud ocupacional 
-    modifier OnlyHO(address _direction) {
-        require(_direction == DireccionSaludOcupacional, "No tienes permisos para realizar esta funcion.");
+    modifier OnlyHO(address _directionSC) {
+        require(_directionSC == DireccionSaludOcupacional, "No tienes permisos para realizar esta funcion.");
         _;
     }
-    
+
     // Funcion para solicitar acceso al sistema
     function PedirAcceso(string memory _Nombre, string memory _Codigo) public {
         // Almacenar la direccion en el array de solicitudes 
@@ -74,38 +61,10 @@ contract HealthOcupational {
         // Emision del evento 
         emit TrabajadorValidado(_empleado);
     }
-    
-    
-    // Funcion que permita crear un contrato inteligente de un empleado 
-    function NuevoContratoDiario() public {
-        // Filtrado para que unicamente los centros de salud validados sean capaces de ejecutar esta funcion 
-        require (ValidacionTrabajador[msg.sender] == true, "No tienes permisos para ejecutar esta funcion.");
-        // Generar un Smart Contract -> Generar su direccion 
-        address contrato_Empleado = address (new ContratoEmpleado(msg.sender));
-        // Almacenamiento la direccion del contrato en el array 
-        DireccionesContratosTrabajadores.push(contrato_Empleado);
-        // Relacion entre el centro de salud y su contrato 
-        ContratoTrabajador[msg.sender] = contrato_Empleado;
-        // Emisio del evento 
-        emit NuevoContratoDiarioTrabajador(contrato_Empleado, msg.sender);
-    }
-    
-}
 
+    address public DireccionTrabajador = msg.sender;
 
-// Contrato autogestionable por el Centro de Salud 
-contract ContratoEmpleado {
-    
-    // Direcciones iniciales 
-    address public DireccionTrabajador;
-    address public SCDirection;
-    
-    constructor (address _direction) public {
-        DireccionTrabajador = _direction;
-        SCDirection = address(this);
-    }
-    
-    // Mapping para relacionar el hash de la persona con los resultados (diagnostico, CODIGO IPFS)
+    // Mapping para relacionar el hash de la persona con los resultados
     mapping (address => ResultadosIN) ResultadosEntradaTrabajo;
     mapping (address => ResultadosOUT) ResultadosSalidaTrabajo;
 
@@ -123,12 +82,12 @@ contract ContratoEmpleado {
     event SalidaTrabajo (string);
 
     // modificador para que las funciones solo se activen con un trabajador validado
-    modifier OnlyWorker(address _direction) {
-        require (_direction == DireccionTrabajador, "No tienes permisos para ejecutar esta funcion.");
+    modifier OnlyWorker(address _directionT) {
+        require (_directionT != DireccionTrabajador, "No tienes permisos para ejecutar esta funcion.");
         _;
     }
     // Funcion para emitir resultados de entrada al tarabajo
-    function DatosEntradaTrabajo(string memory formatJSON) public OnlyWorker(msg.sender){
+    function DatosEntradaTrabajo(string memory formatJSON) public {
         // Relacion del hash de la persona con la estructura de resultados 
         ResultadosEntradaTrabajo[DireccionTrabajador] = ResultadosIN(formatJSON);
         // Emision de un evento 
@@ -153,4 +112,5 @@ contract ContratoEmpleado {
         // Retorno de los parametros necesarios
         formatJSON = ResultadosSalidaTrabajo[_idPersona].formatJSON;
     }
+    
 }

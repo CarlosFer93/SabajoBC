@@ -56,7 +56,7 @@ export default function WorkerView({
     descanso: {
       dormirTimestamp: new Date().getTime(),
       despertarTimestamp: new Date().getTime(),
-      casado: false,
+      cansado: false,
     }
   })
 
@@ -83,18 +83,18 @@ export default function WorkerView({
   };
 
   const handlePostWorkerData = async () => {
-    const result = tx(writeContracts.ContratoEmpleado.DatosEntradaTrabajo(
+    const result = tx(writeContracts.HealthOcupational.DatosEntradaTrabajo(
       "JSON.stringify(formatState).toString()"
     ), update => {
       console.log("📡 Transaction Update:", update);
-      if (update && (update.status === "confirmed" || update.status === 1)) {
+      // if (update && (update.status === "confirmed" || update.status === 1)) {
         console.log(" Success ");
         // Firebase upload
         addDoc(eventsRef, {
           timestamp: new Date().getTime(),
           form: formatState
         })
-      }
+      // }
     });
     console.log("awaiting metamask/web3 confirm result...", result);
     console.log(await result);
@@ -279,11 +279,12 @@ export default function WorkerView({
                 Sueño y descanso
               </div>
             } key="1">
+              {/* TODO: Time Picker instead of input */}
               <h4>
-                Hora de dormir <Input onChange={(e) => setFormatState({ ...formatState, actividades: { ...formatState.actividades, actividadPrimaria: e.target.value } })} placeholder="Escribe tu actividad primaria" />
+                Hora de dormir <Input onChange={(e) => setFormatState({ ...formatState, descanso: { ...formatState.descanso, dormirTimestamp: e.target.value } })} placeholder="Escribe la hora en que dormiste" />
               </h4>
               <h4>
-                Hora en la que despertó <Input onChange={(e) => setFormatState({ ...formatState, actividades: { ...formatState.actividades, actividadSecundaria: e.target.value } })} placeholder="Escribe tu actividad secundaria" />
+                Hora en la que despertó <Input onChange={(e) => setFormatState({ ...formatState, descanso: { ...formatState.descanso, despertarTimestamp: e.target.value } })} placeholder="Escribe la hora en que despertaste" />
               </h4>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 ¿Se siente cansado?
