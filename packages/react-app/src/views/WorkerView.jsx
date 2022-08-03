@@ -1,11 +1,13 @@
-import { Button, Collapse, Checkbox, DatePicker, Divider, Input, Progress, Slider, Spin, Switch } from "antd";
+import { Button, Collapse, Checkbox, TimePicker, Divider, Input } from "antd";
 import React, { useState } from "react";
 import { utils } from "ethers";
-import { SyncOutlined } from "@ant-design/icons";
 import { collection, addDoc } from 'firebase/firestore';
-import { useFirestore, useFirestoreCollection, useFirestoreCollectionData } from 'reactfire';
+import { useFirestore } from 'reactfire';
+import moment from 'moment';
 
 import { Address, Balance, Events } from "../components";
+
+const format = 'HH:mm';
 
 export default function WorkerView({
   purpose,
@@ -159,13 +161,20 @@ export default function WorkerView({
                 <Checkbox
                   checked={allTrue(Object.values(formatState.proteccion))}
                   indeterminate={atleastOneTrue(Object.values(formatState.proteccion)) && !allTrue(Object.values(formatState.proteccion))}
-                // onChange={() => {
-                //   let _proteccion = formatState.proteccion;
-                //   Object.keys(formatState.proteccion).forEach(key => {
-                //     _proteccion[key] = atleastOneTrue(Object.values(formatState.proteccion)) && !allTrue(Object.values(formatState.proteccion)) ? true : false
-                //   })
-                //   setFormatState({ ...formatState, proteccion: _proteccion })
-                // }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if(allTrue(Object.values(formatState.proteccion))){
+                      Object.keys(formatState.proteccion).forEach(key => {
+                        formatState.proteccion[key] = false;
+                      });
+                      setFormatState({ ...formatState, proteccion: formatState.proteccion })
+                    } else {
+                      Object.keys(formatState.proteccion).forEach(key => {
+                        formatState.proteccion[key] = true;
+                      });
+                      setFormatState({ ...formatState, proteccion: formatState.proteccion })
+                    }
+                  }}
                 ></Checkbox>
               </div>
             } key="1">
@@ -208,6 +217,20 @@ export default function WorkerView({
                 <Checkbox
                   checked={allTrue(Object.values(formatState.capacitacion))}
                   indeterminate={atleastOneTrue(Object.values(formatState.capacitacion)) && !allTrue(Object.values(formatState.capacitacion))}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if(allTrue(Object.values(formatState.capacitacion))){
+                      Object.keys(formatState.capacitacion).forEach(key => {
+                        formatState.capacitacion[key] = false;
+                      });
+                      setFormatState({ ...formatState, capacitacion: formatState.capacitacion })
+                    } else {
+                      Object.keys(formatState.capacitacion).forEach(key => {
+                        formatState.capacitacion[key] = true;
+                      });
+                      setFormatState({ ...formatState, capacitacion: formatState.capacitacion })
+                    }
+                  }}
                 ></Checkbox>
               </div>
             } key="1">
@@ -238,6 +261,20 @@ export default function WorkerView({
                 <Checkbox
                   checked={allTrue(Object.values(formatState.bienestar))}
                   indeterminate={atleastOneTrue(Object.values(formatState.bienestar)) && !allTrue(Object.values(formatState.bienestar))}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if(allTrue(Object.values(formatState.bienestar))){
+                      Object.keys(formatState.bienestar).forEach(key => {
+                        formatState.bienestar[key] = false;
+                      });
+                      setFormatState({ ...formatState, bienestar: formatState.bienestar })
+                    } else {
+                      Object.keys(formatState.bienestar).forEach(key => {
+                        formatState.bienestar[key] = true;
+                      });
+                      setFormatState({ ...formatState, bienestar: formatState.bienestar })
+                    }
+                  }}
                 ></Checkbox>
               </div>
             } key="1">
@@ -280,12 +317,14 @@ export default function WorkerView({
               </div>
             } key="1">
               {/* TODO: Time Picker instead of input */}
-              <h4>
-                Hora de dormir <Input onChange={(e) => setFormatState({ ...formatState, descanso: { ...formatState.descanso, dormirTimestamp: e.target.value } })} placeholder="Escribe la hora en que dormiste" />
-              </h4>
-              <h4>
-                Hora en la que despertó <Input onChange={(e) => setFormatState({ ...formatState, descanso: { ...formatState.descanso, despertarTimestamp: e.target.value } })} placeholder="Escribe la hora en que despertaste" />
-              </h4>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h4>Hora de dormir</h4>
+                <TimePicker onChange={(e) => setFormatState({ ...formatState, descanso: { ...formatState.descanso, dormirTimestamp: e } })} placeholder="Hora en que fuiste a dormir" defaultValue={moment('22:00', format)} format={format} size="small" />
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h4>Hora en la que despertó</h4>
+                <TimePicker onChange={(e) => setFormatState({ ...formatState, descanso: { ...formatState.descanso, despertarTimestamp: e } })} placeholder="Hora en que despertaste" defaultValue={moment('8:00', format)} format={format} size="small" />
+              </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 ¿Se siente cansado?
                 <Checkbox checked={formatState.descanso.cansado} onChange={() => setFormatState({ ...formatState, descanso: { ...formatState.descanso, cansado: !formatState.descanso.cansado } })}></Checkbox>
@@ -294,7 +333,7 @@ export default function WorkerView({
           </Collapse>
 
           <Button
-            style={{ marginTop: 8 }}
+            style={{ marginTop: 8, justifySelf: "end" }}
             onClick={handlePostWorkerData}
           >
             Enviar datos
@@ -305,7 +344,7 @@ export default function WorkerView({
 
         Your Address:
         <Address address={address} ensProvider={mainnetProvider} fontSize={16} />
-        <Divider />
+        {/* <Divider />
         <h2>Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}</h2>
         <div>OR</div>
         <Balance address={address} provider={localProvider} price={price} />
@@ -318,22 +357,22 @@ export default function WorkerView({
           ensProvider={mainnetProvider}
           fontSize={16}
         />
-        <Divider />
+        <Divider /> */}
       </div>
 
       {/*
         📑 Maybe display a list of events?
           (uncomment the event and emit line in YourContract.sol! )
       */}
-      <Events
+      {/* <Events
         contracts={readContracts}
         contractName="HealthOcupational"
         eventName="AccessRequests"
         localProvider={localProvider}
         mainnetProvider={mainnetProvider}
         startBlock={1}
-      />
-
+      /> */}
+{/* 
       <Events
         contracts={readContracts}
         contractName="HealthOcupational"
@@ -341,7 +380,7 @@ export default function WorkerView({
         localProvider={localProvider}
         mainnetProvider={mainnetProvider}
         startBlock={1}
-      />
+      /> */}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Button, Divider } from "antd";
+import { Button, Divider, Modal } from "antd";
 import React, { useState } from "react";
 import { utils } from "ethers";
 import { collection } from 'firebase/firestore';
@@ -6,7 +6,7 @@ import { useFirestore, useFirestoreCollectionData } from 'reactfire';
 
 
 import { Address, Balance, Events } from "../components";
-import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
 
 export default function OccupationalView({
   purpose,
@@ -21,6 +21,8 @@ export default function OccupationalView({
   writeContracts,
 }) {
   const [requestsList, setRequestsList] = useState([]);
+  const [modalWorkerSummaryVisible, setModalWorkerSummaryVisible] = useState(false);
+
   const eventsRef = collection(useFirestore(), "events")
   const { data, status } = useFirestoreCollectionData(eventsRef);
 
@@ -59,16 +61,130 @@ export default function OccupationalView({
     console.log(logresult);
   }
 
+  const renderInfoByCodigo = () => {
+    let currentCodigoData = data.filter(({ form }) => form.codigo === modalWorkerSummaryVisible);
+
+    return (
+      <>
+        <h4>Actividades</h4>
+        <h5>Actividades Primarias</h5>
+        <ul>
+          {currentCodigoData.map(({ form, timestamp }) => <li><b>{new Date(timestamp).toLocaleString()}</b> {form.actividades.actividadPrimaria}</li>)}
+        </ul>
+        <h5>Actividades Secundarias</h5>
+        <ul>
+          {currentCodigoData.map(({ form, timestamp }) => <li><b>{new Date(timestamp).toLocaleString()}</b> {form.actividades.actividadSecundaria}</li>)}
+        </ul>
+        <h5>Actividades Faltantes</h5>
+        <ul>
+          {currentCodigoData.map(({ form, timestamp }) => <li><b>{new Date(timestamp).toLocaleString()}</b> {form.actividades.actividadFaltante}</li>)}
+        </ul>
+
+        <h4>Protección</h4>
+        <BarChart
+          width={450}
+          height={200}
+          data={[
+            ...Object.keys(currentCodigoData[0]?.form?.proteccion || {}).map(item => ({
+              name: `${item}`,
+              value: currentCodigoData?.filter(
+                ({ timestamp, form }) => form?.proteccion[item]
+              ).length
+            }))
+          ]}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <YAxis dataKey="value" />
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <CartesianGrid stroke="#e4e4e4" />
+          <Bar fill="#28b6ee" type="monotone" dataKey="value" yAxisId={0} />
+        </BarChart>
+
+        <h4>Capacitación</h4>
+        <BarChart
+          width={450}
+          height={200}
+          data={[
+            ...Object.keys(currentCodigoData[0]?.form?.capacitacion || {}).map(item => ({
+              name: `${item}`,
+              value: currentCodigoData?.filter(
+                ({ timestamp, form }) => form?.capacitacion[item]
+              ).length
+            }))
+          ]}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <YAxis dataKey="value" />
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <CartesianGrid stroke="#e4e4e4" />
+          <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
+        </BarChart>
+
+        <h4>Bienestar</h4>
+        <BarChart
+          width={450}
+          height={200}
+          data={[
+            ...Object.keys(currentCodigoData[0]?.form?.bienestar || {}).map(item => ({
+              name: `${item}`,
+              value: currentCodigoData?.filter(
+                ({ timestamp, form }) => form?.bienestar[item]
+              ).length
+            }))
+          ]}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <YAxis dataKey="value" />
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <CartesianGrid stroke="#e4e4e4" />
+          <Bar fill="#93d161" type="monotone" dataKey="value" yAxisId={0} />
+        </BarChart>
+
+        <h4>Descanso</h4>
+        <LineChart
+          width={500}
+          height={200}
+          data={currentCodigoData.map(({form, timestamp}) => ({
+              timestamp: timestamp,
+              dormir: new Date(form.descanso.dormirTimestamp).getHours() + new Date(form.descanso.dormirTimestamp).getMinutes(),
+              despertar: new Date(form.descanso.despertarTimestamp).getHours() + new Date(form.descanso.despertarTimestamp).getMinutes()
+            }))
+          }
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <YAxis/>
+          <XAxis dataKey="timestamp" />
+          <Tooltip />
+          <CartesianGrid stroke="#e4e4e4" />
+          <Line stroke="#ee8828" type="monotone" dataKey="despertar" yAxisId={0} />
+          {/* <Line stroke="#4c28ee" type="monotone" dataKey="dormir" yAxisId={1} /> */}
+        </LineChart>
+      </>
+    )
+  }
+
   if (status === 'loading') {
     return <p>Cargando...</p>;
   }
 
   return (
     <div>
+      <Modal
+        title={`Datos del trabajador '${modalWorkerSummaryVisible}'`}
+        centered
+        visible={modalWorkerSummaryVisible !== false}
+        onOk={() => setModalWorkerSummaryVisible(false)}
+        onCancel={() => setModalWorkerSummaryVisible(false)}
+      >
+        {renderInfoByCodigo()}
+      </Modal>
       {/*
         ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
       */}
-      <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
+      <div style={{ border: "1px solid #cccccc", padding: 16, width: 800, margin: "auto", marginTop: 64 }}>
         <h2>Salud Ocupacional</h2>
         <Button onClick={handleRegisterOccupational}>Registrarse blockchain</Button>
         <Button onClick={handleShowRequests}>Mostrar Requests de workers</Button>
@@ -77,61 +193,112 @@ export default function OccupationalView({
         </div>
 
         <Divider />
-        Your Address:
+        Dirección:
         <Address address={address} ensProvider={mainnetProvider} fontSize={16} />
 
-        <Divider />
-        {/* use utils.formatEther to display a BigNumber: */}
-        <h2>Your Balance: {yourLocalBalance ? utils.formatEther(yourLocalBalance) : "..."}</h2>
-        <div>OR</div>
-        <Balance address={address} provider={localProvider} price={price} />
-        Your Contract Address:
-        <Address
-          address={readContracts && readContracts.YourContract ? readContracts.YourContract.address : null}
-          ensProvider={mainnetProvider}
-          fontSize={16}
-        />
-        <Divider />
-        <ul>
-          {
-            data?.map(
-              (event) => <li key={event.id}>{event.id}</li>
-            )
+        <h3>Resumen por Tópico</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gridGap: 10 }}>
+          <div>
+            <h3>Protección</h3>
+            {/* Counts the number of formats using chaleco */}
+            <BarChart
+              width={350}
+              height={200}
+              data={[
+                ...Object.keys(data[0]?.form.proteccion || {}).map(item => ({
+                  name: `${item}`,
+                  value: data?.filter(
+                    ({ timestamp, form }) => form?.proteccion[item]
+                  ).length
+                }))
+              ]}
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+              <YAxis dataKey="value" />
+              <XAxis dataKey="name" />
+              <Tooltip />
+              <CartesianGrid stroke="#e4e4e4" />
+              <Bar fill="#28b6ee" type="monotone" dataKey="value" yAxisId={0} />
+            </BarChart>
+          </div>
+
+          <div>
+            <h3>Capacitación</h3>
+            <BarChart
+              width={350}
+              height={200}
+              data={[
+                ...Object.keys(data[0]?.form.capacitacion || {}).map(item => ({
+                  name: `${item}`,
+                  value: data?.filter(
+                    ({ timestamp, form }) => form?.capacitacion[item]
+                  ).length
+                }))
+              ]}
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+              <YAxis dataKey="value" />
+              <XAxis dataKey="name" />
+              <Tooltip />
+              <CartesianGrid stroke="#e4e4e4" />
+              <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
+            </BarChart>
+          </div>
+
+          <div>
+            <h3>Bienestar</h3>
+            <BarChart
+              width={350}
+              height={200}
+              data={[
+                ...Object.keys(data[0]?.form.bienestar || {}).map(item => ({
+                  name: `${item}`,
+                  value: data?.filter(
+                    ({ timestamp, form }) => form?.bienestar[item]
+                  ).length
+                }))
+              ]}
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+              <YAxis dataKey="value" />
+              <XAxis dataKey="name" />
+              <Tooltip />
+              <CartesianGrid stroke="#e4e4e4" />
+              <Bar fill="#93d161" type="monotone" dataKey="value" yAxisId={0} />
+            </BarChart>
+          </div>
+        </div>
+
+        <h3>Resumen por Trabajador</h3>
+        <ul style={{ justifyContent: "left", textAlign: "left" }}>
+          {data.filter((value, index, self) => {
+            return (
+              self.findIndex((v) => v.form.codigo === value.form.codigo) === index
+            );
+          }).map(({ form }) => <li>
+            <b>Código: </b>{form.codigo} <br />
+            <b>Nombre: </b>{form.nombre} <br />
+            <Button type="primary" onClick={() => setModalWorkerSummaryVisible(form.codigo)}>
+              Ver
+            </Button>
+          </li>
+          )
           }
         </ul>
-        {/* Counts the number of formats using chaleco */}
-        <BarChart
-          width={500}
-          height={400}
-          data={[
-          ...Object.keys(data[0]?.form.proteccion || {}).map(item => ({
-            name: `${item}`,
-            value: data?.filter(
-              ({ timestamp, form }) => form?.proteccion[item]
-            ).length
-          }))
-        ]}
-          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-        >
-          <XAxis dataKey="name" />
-          <Tooltip />
-          <CartesianGrid stroke="#f5f5f5" />
-          <Bar type="monotone" dataKey="value" yAxisId={0} />
-        </BarChart>
       </div>
 
       {/*
         📑 Maybe display a list of events?
           (uncomment the event and emit line in YourContract.sol! )
       */}
-      <Events
+      {/* <Events
         contracts={readContracts}
         contractName="HealthOcupational"
         eventName="NewOHDirection"
         localProvider={localProvider}
         mainnetProvider={mainnetProvider}
         startBlock={1}
-      />
+      /> */}
     </div>
   );
 }
