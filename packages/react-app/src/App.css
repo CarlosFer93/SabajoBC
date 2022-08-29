@@ -1,4 +1,7 @@
 .App {
-  text-align: center;
   padding-left: calc(100vw - 100%);
+}
+
+* {
+  animation-duration: 0s !important;
 }

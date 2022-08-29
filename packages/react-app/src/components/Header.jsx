@@ -19,5 +19,4 @@ export default function Header({link, title, subTitle}) {
 Header.defaultProps = {
   link: "/",
   title: "🩺 SABAJO",
-  subTitle: "la vie est belle",
 }
