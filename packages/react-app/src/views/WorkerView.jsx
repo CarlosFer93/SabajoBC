@@ -77,11 +77,6 @@ export default function WorkerView({ address, mainnetProvider, tx, writeContract
   const [workStart, setWorkStart] = useState(true);
   const [formatState, setFormatState] = useState(workStartFormat);
 
-  useEffect(() => {
-    if (workStart) setFormatState(workStartFormat);
-    else setFormatState(workEndFormat);
-  }, [workStart]);
-
   const handleRequestAccessWorker = async () => {
     const result = tx(writeContracts.HealthOcupational.PedirAcceso(formatState.nombre, formatState.codigo), update => {
       console.log("📡 Transaction Update:", update);
@@ -132,7 +127,10 @@ export default function WorkerView({ address, mainnetProvider, tx, writeContract
   };
 
   const onChangeWorkStart = () => {
-    setWorkStart(!workStart);
+    const _workStart = !workStart;
+    if (_workStart) setFormatState(workStartFormat);
+    else setFormatState(workEndFormat);
+    setWorkStart(_workStart);
   };
 
   return (

@@ -11,7 +11,8 @@ import { Address } from "../components";
 
 export default function OccupationalView({ address, mainnetProvider, tx, writeContracts }) {
   const [requestsList, setRequestsList] = useState([]);
-  const [modalWorkerSummaryVisible, setModalWorkerSummaryVisible] = useState(false);
+  const [modalWorkerSummaryVisibleStarting, setModalWorkerSummaryVisibleStarting] = useState(false);
+  const [modalWorkerSummaryVisibleEnding, setModalWorkerSummaryVisibleEnding] = useState(false);
   const [, updateState] = React.useState();
   const forceUpdate = React.useCallback(() => updateState({}), []);
 
@@ -55,8 +56,8 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
     console.log(logresult);
   };
 
-  const renderInfoByCodigo = () => {
-    let currentCodigoData = data.filter(({ form }) => form.codigo === modalWorkerSummaryVisible && form.workStart);
+  const renderInfoByCodigoStarting = () => {
+    let currentCodigoData = data.filter(({ form }) => form.codigo === modalWorkerSummaryVisibleStarting && form.workStart);
 
     return (
       <>
@@ -147,6 +148,83 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
       </>
     );
   };
+  
+  const renderInfoByCodigoEnding = () => {
+    let currentCodigoData = data.filter(({ form }) => form.codigo === modalWorkerSummaryVisibleEnding && !form.workStart);
+
+    return (
+      <>
+        Reporte terminando jornada laboral
+        <Divider/>
+        <h4>Actividades</h4>
+        <h5>Actividades Faltantes</h5>
+        <ul>
+          {currentCodigoData.map(({ form, timestamp }) => (
+            <li>
+              <b>{new Date(timestamp).toLocaleString()}</b> {form.actividades.falto}
+            </li>
+          ))}
+        </ul>
+
+        <h4>Protección</h4>
+        <BarChart
+          width={450}
+          height={200}
+          data={[
+            ...Object.keys(currentCodigoData[0]?.form?.proteccion || {}).map(item => ({
+              name: `${item}`,
+              value: currentCodigoData?.filter(({ timestamp, form }) => form?.proteccion[item]).length,
+            })),
+          ]}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <YAxis dataKey="value" />
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <CartesianGrid stroke="#e4e4e4" />
+          <Bar fill="#28b6ee" type="monotone" dataKey="value" yAxisId={0} />
+        </BarChart>
+
+        <h4>Bienestar</h4>
+        <BarChart
+          width={450}
+          height={200}
+          data={[
+            ...Object.keys(currentCodigoData[0]?.form?.bienestar || {}).map(item => ({
+              name: `${item}`,
+              value: currentCodigoData?.filter(({ timestamp, form }) => form?.bienestar[item]).length,
+            })),
+          ]}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <YAxis dataKey="value" />
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <CartesianGrid stroke="#e4e4e4" />
+          <Bar fill="#93d161" type="monotone" dataKey="value" yAxisId={0} />
+        </BarChart>
+
+        <h4>Descanso</h4>
+        <BarChart
+              width={480}
+              height={200}
+              data={[
+                ...Object.keys(currentCodigoData[0]?.form.descanso || {}).map(item => ({
+                  name: `${item}`,
+                  value: currentCodigoData?.filter(({ timestamp, form }) => form?.descanso[item]).length,
+                })),
+              ]}
+              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+            >
+              <YAxis dataKey="value" />
+              <XAxis dataKey="name" />
+              <Tooltip />
+              <CartesianGrid stroke="#e4e4e4" />
+              <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
+            </BarChart>
+      </>
+    );
+  };
 
   if (status === "loading") {
     return <p>Cargando...</p>;
@@ -155,14 +233,25 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
   return (
     <div>
       <Modal
-        title={`Datos del trabajador '${modalWorkerSummaryVisible}'`}
+        title={`Datos del trabajador '${modalWorkerSummaryVisibleStarting}' Iniciando Jornada`}
         centered
         motion={null}
-        visible={modalWorkerSummaryVisible !== false}
-        onOk={() => setModalWorkerSummaryVisible(false)}
-        onCancel={() => setModalWorkerSummaryVisible(false)}
+        visible={modalWorkerSummaryVisibleStarting !== false}
+        onOk={() => setModalWorkerSummaryVisibleStarting(false)}
+        onCancel={() => setModalWorkerSummaryVisibleStarting(false)}
       >
-        {renderInfoByCodigo()}
+        {renderInfoByCodigoStarting()}
+      </Modal>
+
+      <Modal
+        title={`Datos del trabajador '${modalWorkerSummaryVisibleEnding}' Terminando Jornada`}
+        centered
+        motion={null}
+        visible={modalWorkerSummaryVisibleEnding !== false}
+        onOk={() => setModalWorkerSummaryVisibleEnding(false)}
+        onCancel={() => setModalWorkerSummaryVisibleEnding(false)}
+      >
+        {renderInfoByCodigoEnding()}
       </Modal>
       {/*
         ⚙️ Here is an example UI that displays and sets the purpose in your smart contract:
@@ -306,29 +395,6 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
             </BarChart>
           </div>
 
-          <br />
-          <div>
-            <h3>Capacitación</h3>
-            <BarChart
-              width={480}
-              height={200}
-              data={[
-                ...Object.keys(workEndingData[0]?.form.capacitacion || {}).map(item => ({
-                  name: `${item}`,
-                  value: workEndingData?.filter(({ timestamp, form }) => form?.capacitacion[item]).length,
-                })),
-              ]}
-              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-            >
-              <YAxis dataKey="value" />
-              <XAxis dataKey="name" />
-              <Tooltip />
-              <CartesianGrid stroke="#e4e4e4" />
-              <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
-            </BarChart>
-          </div>
-        </div>
-        <div style={{ display: "flex" }}>
           <div>
             <h3>Bienestar</h3>
             <BarChart
@@ -349,45 +415,67 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
               <Bar fill="#93d161" type="monotone" dataKey="value" yAxisId={0} />
             </BarChart>
           </div>
-
+        </div>
+        <div style={{ display: "flex" }}>
           <div>
-            <h4>Descanso</h4>
-            <LineChart
-              width={500}
+            <h3>Descanso</h3>
+            <BarChart
+              width={480}
               height={200}
-              data={workEndingData.map(({ form, timestamp }, index) => ({
-                timestamp: index,
-                dormir:
-                  new Date(parseInt(form.descanso.dormirTimestamp)).getHours() * 100 +
-                  new Date(parseInt(form.descanso.dormirTimestamp)).getMinutes(),
-                despertar:
-                  new Date(parseInt(form.descanso.despertarTimestamp)).getHours() * 100 +
-                  new Date(parseInt(form.descanso.despertarTimestamp)).getMinutes(),
-              }))}
+              data={[
+                ...Object.keys(workEndingData[0]?.form.descanso || {}).map(item => ({
+                  name: `${item}`,
+                  value: workEndingData?.filter(({ timestamp, form }) => form?.descanso[item]).length,
+                })),
+              ]}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
-              <YAxis />
-              <XAxis dataKey="timestamp" />
+              <YAxis dataKey="value" />
+              <XAxis dataKey="name" />
               <Tooltip />
               <CartesianGrid stroke="#e4e4e4" />
-              <Line stroke="#ee8828" type="monotone" dataKey="despertar" yAxisId={0} />
-              <Line stroke="#4c28ee" type="monotone" dataKey="dormir" yAxisId={0} />
-            </LineChart>
+              <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
+            </BarChart>
           </div>
         </div>
         <h3>Resumen por Trabajador</h3>
-        <div style={{ display: "flex", flexDirection: "row", justifyContent: "center", width: "100%", gap: 10 }}>
-          {data
+        <Divider />
+        <h4>Iniciando Jornada</h4>
+        <div style={{ display: "flex", flexDirection: "row", width: "100%", gap: 10, overflow: "scroll" }}>
+          {workStartingData
             .filter((value, index, self) => {
               return self.findIndex(v => v.form.codigo === value.form.codigo) === index;
             })
             .map(({ form }) => (
               <Card
-                style={{ width: 300, marginTop: 16 }}
+                style={{ marginTop: 16 }}
                 actions={[<EyeOutlined key="view" />]}
-                onClick={() => setModalWorkerSummaryVisible(form.codigo)}
+                onClick={() => setModalWorkerSummaryVisibleStarting(form.codigo)}
               >
                 <Card.Meta
+                  style={{ width: 200 }}
+                  avatar={<Avatar src={healthWorkerIcon} />}
+                  title={`Código ${form.codigo}`}
+                  description={`${form.nombre}`}
+                />
+              </Card>
+            ))}
+        </div>
+        <Divider />
+        <h4>Terminando Jornada</h4>
+        <div style={{ display: "flex", flexDirection: "row", width: "100%", gap: 10, overflow: "scroll" }}>
+          {workEndingData
+            .filter((value, index, self) => {
+              return self.findIndex(v => v.form.codigo === value.form.codigo) === index;
+            })
+            .map(({ form }) => (
+              <Card
+                style={{ marginTop: 16 }}
+                actions={[<EyeOutlined key="view" />]}
+                onClick={() => setModalWorkerSummaryVisibleEnding(form.codigo)}
+              >
+                <Card.Meta
+                  style={{ width: 200 }}
                   avatar={<Avatar src={healthWorkerIcon} />}
                   title={`Código ${form.codigo}`}
                   description={`${form.nombre}`}
