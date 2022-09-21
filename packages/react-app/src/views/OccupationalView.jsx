@@ -393,7 +393,7 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
               <Tooltip
                 // labelFormatter={<CustomTooltip/>}
                 labelFormatter={label => `Empleado ${label}`}
-                formatter={(value, name, props) => [getHourString(value), name]}
+                formatter={(value, name, props) => [getHourString(value), `Hora de ${name}`]}
               />
               <CartesianGrid stroke="#e4e4e4" />
               <Line stroke="#ee8828" type="monotone" dataKey="despertar" yAxisId={0} />
