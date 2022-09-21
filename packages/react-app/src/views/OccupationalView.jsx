@@ -56,13 +56,45 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
     console.log(logresult);
   };
 
+  const getHourString = value => {
+    return `${
+      parseFloat(parseInt(value) / 100)
+        .toFixed(2)
+        .toString()
+        .split(".")[0]
+    }:${
+      parseFloat(parseInt(value) / 100)
+        .toFixed(2)
+        .toString()
+        .split(".")[1]
+    }`;
+  };
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    console.log("payload", payload); //you check payload
+    if (active) {
+      return (
+        <div>
+          <Card>
+            <p>{JSON.stringify(payload)} </p>
+            <p>Price : ${}</p>
+            <p>Sales Rank :${} </p>
+          </Card>
+        </div>
+      );
+    }
+    return null;
+  };
+
   const renderInfoByCodigoStarting = () => {
-    let currentCodigoData = data.filter(({ form }) => form.codigo === modalWorkerSummaryVisibleStarting && form.workStart);
+    let currentCodigoData = data.filter(
+      ({ form }) => form.codigo === modalWorkerSummaryVisibleStarting && form.workStart,
+    );
 
     return (
       <>
         Reporte iniciando jornada laboral
-        <Divider/>
+        <Divider />
         <h4>Actividades</h4>
         <h5>Actividades Primarias</h5>
         <ul>
@@ -88,7 +120,6 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
             </li>
           ))}
         </ul>
-
         <h4>Protección</h4>
         <BarChart
           width={450}
@@ -107,7 +138,6 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
           <CartesianGrid stroke="#e4e4e4" />
           <Bar fill="#28b6ee" type="monotone" dataKey="value" yAxisId={0} />
         </BarChart>
-
         <h4>Capacitación</h4>
         <BarChart
           width={450}
@@ -126,7 +156,6 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
           <CartesianGrid stroke="#e4e4e4" />
           <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
         </BarChart>
-
         <h4>Bienestar</h4>
         <BarChart
           width={450}
@@ -148,14 +177,16 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
       </>
     );
   };
-  
+
   const renderInfoByCodigoEnding = () => {
-    let currentCodigoData = data.filter(({ form }) => form.codigo === modalWorkerSummaryVisibleEnding && !form.workStart);
+    let currentCodigoData = data.filter(
+      ({ form }) => form.codigo === modalWorkerSummaryVisibleEnding && !form.workStart,
+    );
 
     return (
       <>
         Reporte terminando jornada laboral
-        <Divider/>
+        <Divider />
         <h4>Actividades</h4>
         <h5>Actividades Faltantes</h5>
         <ul>
@@ -165,7 +196,6 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
             </li>
           ))}
         </ul>
-
         <h4>Protección</h4>
         <BarChart
           width={450}
@@ -184,7 +214,6 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
           <CartesianGrid stroke="#e4e4e4" />
           <Bar fill="#28b6ee" type="monotone" dataKey="value" yAxisId={0} />
         </BarChart>
-
         <h4>Bienestar</h4>
         <BarChart
           width={450}
@@ -203,25 +232,24 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
           <CartesianGrid stroke="#e4e4e4" />
           <Bar fill="#93d161" type="monotone" dataKey="value" yAxisId={0} />
         </BarChart>
-
         <h4>Descanso</h4>
         <BarChart
-              width={480}
-              height={200}
-              data={[
-                ...Object.keys(currentCodigoData[0]?.form.descanso || {}).map(item => ({
-                  name: `${item}`,
-                  value: currentCodigoData?.filter(({ timestamp, form }) => form?.descanso[item]).length,
-                })),
-              ]}
-              margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-            >
-              <YAxis dataKey="value" />
-              <XAxis dataKey="name" />
-              <Tooltip />
-              <CartesianGrid stroke="#e4e4e4" />
-              <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
-            </BarChart>
+          width={480}
+          height={200}
+          data={[
+            ...Object.keys(currentCodigoData[0]?.form.descanso || {}).map(item => ({
+              name: `${item}`,
+              value: currentCodigoData?.filter(({ timestamp, form }) => form?.descanso[item]).length,
+            })),
+          ]}
+          margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+        >
+          <YAxis dataKey="value" />
+          <XAxis dataKey="name" />
+          <Tooltip />
+          <CartesianGrid stroke="#e4e4e4" />
+          <Bar fill="#ebbc3b" type="monotone" dataKey="value" yAxisId={0} />
+        </BarChart>
       </>
     );
   };
@@ -345,7 +373,7 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
           </div>
 
           <div>
-            <h4>Descanso</h4>
+            <h4>Descanso (horario)</h4>
             <LineChart
               width={500}
               height={200}
@@ -360,9 +388,13 @@ export default function OccupationalView({ address, mainnetProvider, tx, writeCo
               }))}
               margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
             >
-              <YAxis />
+              <YAxis tickFormatter={(value, index) => getHourString(value)} />
               <XAxis dataKey="timestamp" />
-              <Tooltip />
+              <Tooltip
+                // labelFormatter={<CustomTooltip/>}
+                labelFormatter={label => `Empleado ${label}`}
+                formatter={(value, name, props) => [getHourString(value), name]}
+              />
               <CartesianGrid stroke="#e4e4e4" />
               <Line stroke="#ee8828" type="monotone" dataKey="despertar" yAxisId={0} />
               <Line stroke="#4c28ee" type="monotone" dataKey="dormir" yAxisId={0} />
